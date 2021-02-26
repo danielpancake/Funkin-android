@@ -1,17 +1,14 @@
 package;
 
 import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 
-class MenuItem extends FlxSpriteGroup
-{
+class MenuItem extends FlxSpriteGroup {
 	public var targetY:Float = 0;
 	public var week:FlxSprite;
 
-	public function new(x:Float, y:Float, weekNum:Int = 0)
-	{
+	public function new(x:Float, y:Float, weekNum:Int = 0) {
 		super(x, y);
 
 		var tex = Paths.getSparrowAtlas('campaign_menu_UI_assets');
@@ -33,8 +30,7 @@ class MenuItem extends FlxSpriteGroup
 		week.updateHitbox();
 	}
 
-	override function update(elapsed:Float)
-	{
+	override function update(elapsed:Float) {
 		super.update(elapsed);
 		y = FlxMath.lerp(y, (targetY * 120) + 480, 0.17);
 	}

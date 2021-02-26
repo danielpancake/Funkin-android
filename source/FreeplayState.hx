@@ -1,19 +1,17 @@
 package;
 
-import flash.text.TextField;
+import openfl.events.MouseEvent;
+import openfl.Lib;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import lime.utils.Assets;
 
 using StringTools;
 
-class FreeplayState extends MusicBeatState
-{
+class FreeplayState extends MusicBeatState {
 	var songs:Array<SongMetadata> = [];
 
 	var selector:FlxText;
@@ -28,12 +26,38 @@ class FreeplayState extends MusicBeatState
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 	private var curPlaying:Bool = false;
 
-	override function create()
-	{
+	var held:Bool = false;
+	var distance:Float = 0;
+	var startY:Float = 0;
+
+	private function boopMove(e:MouseEvent):Void {
+		if (held) {
+			distance = startY - e.localY;
+
+			if (Math.abs(distance) > 100) {
+				changeSelection(distance < 0 ? 1 : -1);
+				startY = e.localY;
+			}
+		}
+	}
+
+	private function boopDown(e:MouseEvent):Void {
+		startY = e.localY;
+		held = true;
+	}
+
+	private function boopUp(e:MouseEvent):Void {
+		held = false;
+	}
+
+	override function create() {
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, boopMove);
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_DOWN, boopDown);
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, boopUp);
+
 		var initSonglist = CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
 
-		for (i in 0...initSonglist.length)
-		{
+		for (i in 0...initSonglist.length) {
 			songs.push(new SongMetadata(initSonglist[i], 1));
 		}
 
@@ -76,8 +100,7 @@ class FreeplayState extends MusicBeatState
 		grpSongs = new FlxTypedGroup<Alphabet>();
 		add(grpSongs);
 
-		for (i in 0...songs.length)
-		{
+		for (i in 0...songs.length) {
 			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, songs[i].songName, true, false);
 			songText.isMenuItem = true;
 			songText.targetY = i;
@@ -135,25 +158,20 @@ class FreeplayState extends MusicBeatState
 		super.create();
 	}
 
-	public function addSong(songName:String, weekNum:Int)
-	{
+	public function addSong(songName:String, weekNum:Int) {
 		songs.push(new SongMetadata(songName, weekNum));
 	}
 
-	public function addWeek(songs:Array<String>, weekNum:Int)
-	{
-		for (song in songs)
-		{
+	public function addWeek(songs:Array<String>, weekNum:Int) {
+		for (song in songs) {
 			addSong(song, weekNum);
 		}
 	}
 
-	override function update(elapsed:Float)
-	{
+	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (FlxG.sound.music.volume < 0.7)
-		{
+		if (FlxG.sound.music.volume < 0.7) {
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 		}
 
@@ -164,31 +182,18 @@ class FreeplayState extends MusicBeatState
 
 		scoreText.text = "PERSONAL BEST:" + lerpScore;
 
-		var upP = controls.UP_P;
-		var downP = controls.DOWN_P;
 		var accepted = controls.ACCEPT;
-
-		if (upP)
-		{
-			changeSelection(-1);
-		}
-		if (downP)
-		{
-			changeSelection(1);
-		}
 
 		if (controls.LEFT_P)
 			changeDiff(-1);
 		if (controls.RIGHT_P)
 			changeDiff(1);
 
-		if (controls.BACK)
-		{
+		if (controls.BACK) {
 			FlxG.switchState(new MainMenuState());
 		}
 
-		if (accepted)
-		{
+		if (accepted) {
 			var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
 
 			trace(poop);
@@ -203,8 +208,7 @@ class FreeplayState extends MusicBeatState
 		}
 	}
 
-	function changeDiff(change:Int = 0)
-	{
+	function changeDiff(change:Int = 0) {
 		curDifficulty += change;
 
 		if (curDifficulty < 0)
@@ -216,8 +220,7 @@ class FreeplayState extends MusicBeatState
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
 		#end
 
-		switch (curDifficulty)
-		{
+		switch (curDifficulty) {
 			case 0:
 				diffText.text = "EASY";
 			case 1:
@@ -227,13 +230,7 @@ class FreeplayState extends MusicBeatState
 		}
 	}
 
-	function changeSelection(change:Int = 0)
-	{
-		#if !switch
-		NGio.logEvent('Fresh');
-		#end
-
-		// NGio.logEvent('Fresh');
+	function changeSelection(change:Int = 0) {
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
 		curSelected += change;
@@ -256,16 +253,14 @@ class FreeplayState extends MusicBeatState
 
 		var bullShit:Int = 0;
 
-		for (item in grpSongs.members)
-		{
+		for (item in grpSongs.members) {
 			item.targetY = bullShit - curSelected;
 			bullShit++;
 
 			item.alpha = 0.6;
 			// item.setGraphicSize(Std.int(item.width * 0.8));
 
-			if (item.targetY == 0)
-			{
+			if (item.targetY == 0) {
 				item.alpha = 1;
 				// item.setGraphicSize(Std.int(item.width));
 			}
@@ -273,13 +268,11 @@ class FreeplayState extends MusicBeatState
 	}
 }
 
-class SongMetadata
-{
+class SongMetadata {
 	public var songName:String = "";
 	public var week:Int = 0;
 
-	public function new(song:String, week:Int)
-	{
+	public function new(song:String, week:Int) {
 		this.songName = song;
 		this.week = week;
 	}

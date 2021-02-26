@@ -1,14 +1,11 @@
 package;
 
-import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.animation.FlxBaseAnimation;
 import flixel.graphics.frames.FlxAtlasFrames;
 
 using StringTools;
 
-class Character extends FlxSprite
-{
+class Character extends FlxSprite {
 	public var animOffsets:Map<String, Array<Dynamic>>;
 	public var debugMode:Bool = false;
 
@@ -17,8 +14,7 @@ class Character extends FlxSprite
 
 	public var holdTimer:Float = 0;
 
-	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
-	{
+	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false) {
 		super(x, y);
 
 		animOffsets = new Map<String, Array<Dynamic>>();
@@ -28,8 +24,7 @@ class Character extends FlxSprite
 		var tex:FlxAtlasFrames;
 		antialiasing = true;
 
-		switch (curCharacter)
-		{
+		switch (curCharacter) {
 			case 'gf':
 				// GIRLFRIEND CODE
 				tex = Paths.getSparrowAtlas('GF_assets');
@@ -233,15 +228,12 @@ class Character extends FlxSprite
 				animation.addByPrefix('idle', "Pico Idle Dance", 24);
 				animation.addByPrefix('singUP', 'pico Up note0', 24, false);
 				animation.addByPrefix('singDOWN', 'Pico Down Note0', 24, false);
-				if (isPlayer)
-				{
+				if (isPlayer) {
 					animation.addByPrefix('singLEFT', 'Pico NOTE LEFT0', 24, false);
 					animation.addByPrefix('singRIGHT', 'Pico Note Right0', 24, false);
 					animation.addByPrefix('singRIGHTmiss', 'Pico Note Right Miss', 24, false);
 					animation.addByPrefix('singLEFTmiss', 'Pico NOTE LEFT miss', 24, false);
-				}
-				else
-				{
+				} else {
 					// Need to be flipped! REDO THIS LATER!
 					animation.addByPrefix('singLEFT', 'Pico Note Right0', 24, false);
 					animation.addByPrefix('singRIGHT', 'Pico NOTE LEFT0', 24, false);
@@ -499,21 +491,18 @@ class Character extends FlxSprite
 
 		dance();
 
-		if (isPlayer)
-		{
+		if (isPlayer) {
 			flipX = !flipX;
 
 			// Doesn't flip for BF, since his are already in the right place???
-			if (!curCharacter.startsWith('bf'))
-			{
+			if (!curCharacter.startsWith('bf')) {
 				// var animArray
 				var oldRight = animation.getByName('singRIGHT').frames;
 				animation.getByName('singRIGHT').frames = animation.getByName('singLEFT').frames;
 				animation.getByName('singLEFT').frames = oldRight;
 
 				// IF THEY HAVE MISS ANIMATIONS??
-				if (animation.getByName('singRIGHTmiss') != null)
-				{
+				if (animation.getByName('singRIGHTmiss') != null) {
 					var oldMiss = animation.getByName('singRIGHTmiss').frames;
 					animation.getByName('singRIGHTmiss').frames = animation.getByName('singLEFTmiss').frames;
 					animation.getByName('singLEFTmiss').frames = oldMiss;
@@ -522,12 +511,9 @@ class Character extends FlxSprite
 		}
 	}
 
-	override function update(elapsed:Float)
-	{
-		if (!curCharacter.startsWith('bf'))
-		{
-			if (animation.curAnim.name.startsWith('sing'))
-			{
+	override function update(elapsed:Float) {
+		if (!curCharacter.startsWith('bf')) {
+			if (animation.curAnim.name.startsWith('sing')) {
 				holdTimer += elapsed;
 			}
 
@@ -535,15 +521,13 @@ class Character extends FlxSprite
 
 			if (curCharacter == 'dad')
 				dadVar = 6.1;
-			if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
-			{
+			if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001) {
 				dance();
 				holdTimer = 0;
 			}
 		}
 
-		switch (curCharacter)
-		{
+		switch (curCharacter) {
 			case 'gf':
 				if (animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
 					playAnim('danceRight');
@@ -557,15 +541,11 @@ class Character extends FlxSprite
 	/**
 	 * FOR GF DANCING SHIT
 	 */
-	public function dance()
-	{
-		if (!debugMode)
-		{
-			switch (curCharacter)
-			{
+	public function dance() {
+		if (!debugMode) {
+			switch (curCharacter) {
 				case 'gf':
-					if (!animation.curAnim.name.startsWith('hair'))
-					{
+					if (!animation.curAnim.name.startsWith('hair')) {
 						danced = !danced;
 
 						if (danced)
@@ -575,8 +555,7 @@ class Character extends FlxSprite
 					}
 
 				case 'gf-christmas':
-					if (!animation.curAnim.name.startsWith('hair'))
-					{
+					if (!animation.curAnim.name.startsWith('hair')) {
 						danced = !danced;
 
 						if (danced)
@@ -586,8 +565,7 @@ class Character extends FlxSprite
 					}
 
 				case 'gf-car':
-					if (!animation.curAnim.name.startsWith('hair'))
-					{
+					if (!animation.curAnim.name.startsWith('hair')) {
 						danced = !danced;
 
 						if (danced)
@@ -596,8 +574,7 @@ class Character extends FlxSprite
 							playAnim('danceLeft');
 					}
 				case 'gf-pixel':
-					if (!animation.curAnim.name.startsWith('hair'))
-					{
+					if (!animation.curAnim.name.startsWith('hair')) {
 						danced = !danced;
 
 						if (danced)
@@ -619,38 +596,29 @@ class Character extends FlxSprite
 		}
 	}
 
-	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
-	{
+	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void {
 		animation.play(AnimName, Force, Reversed, Frame);
 
 		var daOffset = animOffsets.get(AnimName);
-		if (animOffsets.exists(AnimName))
-		{
+		if (animOffsets.exists(AnimName)) {
 			offset.set(daOffset[0], daOffset[1]);
-		}
-		else
+		} else
 			offset.set(0, 0);
 
-		if (curCharacter == 'gf')
-		{
-			if (AnimName == 'singLEFT')
-			{
+		if (curCharacter == 'gf') {
+			if (AnimName == 'singLEFT') {
 				danced = true;
-			}
-			else if (AnimName == 'singRIGHT')
-			{
+			} else if (AnimName == 'singRIGHT') {
 				danced = false;
 			}
 
-			if (AnimName == 'singUP' || AnimName == 'singDOWN')
-			{
+			if (AnimName == 'singUP' || AnimName == 'singDOWN') {
 				danced = !danced;
 			}
 		}
 	}
 
-	public function addOffset(name:String, x:Float = 0, y:Float = 0)
-	{
+	public function addOffset(name:String, x:Float = 0, y:Float = 0) {
 		animOffsets[name] = [x, y];
 	}
 }
